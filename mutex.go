@@ -42,7 +42,7 @@ func NewMutex(name string, ttl int64, db DBer, lockReattemptWait time.Duration) 
 var ErrLockAlreadyHeld = errors.New("lock already held")
 
 // AttemptLock will try to write the lock once
-func (m *Mutex) AttemptLock(retries int64) error {
+func (m *Mutex) AttemptLock() error {
 	m.PruneExpired()
 	err := m.db.Put(m.Name, time.Now().Unix(), m.TTL)
 	if err == nil {
