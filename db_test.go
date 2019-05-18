@@ -7,11 +7,11 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/joshmyers/ddbsync/mocks"
+	"github.com/joshmyers/ddbsync/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/zencoder/ddbsync/mocks"
-	"github.com/zencoder/ddbsync/models"
 )
 
 const (
@@ -22,6 +22,8 @@ const (
 	DB_VALID_NAME           string = "db-name"
 	DB_VALID_CREATED        int64  = 1424385592
 	DB_VALID_CREATED_STRING string = "1424385592"
+	DB_VALID_TTL            int64  = 60
+	DB_VALID_TTL_STRING     string = "60"
 )
 
 type DBSuite struct {
@@ -43,7 +45,7 @@ func (s *DBSuite) SetupTest() {
 func (s *DBSuite) TestPut() {
 	s.mock.On("PutItem", mock.AnythingOfType("*dynamodb.PutItemInput")).Return(&dynamodb.PutItemOutput{}, nil)
 
-	err := s.db.Put(DB_VALID_NAME, DB_VALID_CREATED)
+	err := s.db.Put(DB_VALID_NAME, DB_VALID_CREATED, DB_VALID_TTL)
 
 	assert.Nil(s.T(), err)
 }
@@ -51,7 +53,7 @@ func (s *DBSuite) TestPut() {
 func (s *DBSuite) TestPutError() {
 	s.mock.On("PutItem", mock.AnythingOfType("*dynamodb.PutItemInput")).Return((*dynamodb.PutItemOutput)(nil), errors.New("PutItem Error"))
 
-	err := s.db.Put(DB_VALID_NAME, DB_VALID_CREATED)
+	err := s.db.Put(DB_VALID_NAME, DB_VALID_CREATED, DB_VALID_TTL)
 
 	assert.NotNil(s.T(), err)
 }
@@ -68,6 +70,9 @@ func (s *DBSuite) TestGet() {
 				"Created": &dynamodb.AttributeValue{
 					N: aws.String(DB_VALID_CREATED_STRING),
 				},
+				"TTL": &dynamodb.AttributeValue{
+					N: aws.String(DB_VALID_TTL_STRING),
+				},
 			},
 		},
 	}
@@ -78,7 +83,7 @@ func (s *DBSuite) TestGet() {
 
 	assert.NotNil(s.T(), i)
 	assert.Nil(s.T(), err)
-	assert.Equal(s.T(), &models.Item{Name: DB_VALID_NAME, Created: DB_VALID_CREATED}, i)
+	assert.Equal(s.T(), &models.Item{Name: DB_VALID_NAME, Created: DB_VALID_CREATED, TTL: DB_VALID_TTL}, i)
 }
 
 func (s *DBSuite) TestGetErrorNoQueryOutput() {

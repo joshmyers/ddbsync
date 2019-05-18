@@ -7,10 +7,10 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/joshmyers/ddbsync/mocks"
+	"github.com/joshmyers/ddbsync/models"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/zencoder/ddbsync/mocks"
-	"github.com/zencoder/ddbsync/models"
 )
 
 const (
@@ -44,8 +44,10 @@ func TestLock(t *testing.T) {
 	db := new(mocks.DBer)
 	underTest := NewMutex(VALID_MUTEX_NAME, VALID_MUTEX_TTL, db, VALID_MUTEX_RETRY_WAIT)
 
-	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64")).Return(nil)
-	db.On("Get", VALID_MUTEX_NAME).Return(&models.Item{Name: VALID_MUTEX_NAME, Created: VALID_MUTEX_CREATED}, nil)
+	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64"), mock.AnythingOfType("int64")).Return(nil)
+
+	db.On("Get", VALID_MUTEX_NAME).Return(&models.Item{Name: VALID_MUTEX_NAME, Created: VALID_MUTEX_CREATED, TTL: VALID_MUTEX_TTL}, nil)
+
 	db.On("Delete", VALID_MUTEX_NAME).Return(nil)
 
 	underTest.Lock()
@@ -58,10 +60,10 @@ func TestLockWaitsBeforeRetrying(t *testing.T) {
 
 	db.On("Get", VALID_MUTEX_NAME).Return(&models.Item{Name: VALID_MUTEX_NAME, Created: VALID_MUTEX_CREATED}, nil)
 	db.On("Delete", VALID_MUTEX_NAME).Return(nil)
-	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64")).Once().Return(lockHeldErr)
-	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64")).Once().Return(dynamoInternalErr)
-	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64")).Once().Return(errors.New("Dynamo Glitch"))
-	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64")).Once().Return(nil)
+	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64"), mock.AnythingOfType("int64")).Once().Return(lockHeldErr)
+	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64"), mock.AnythingOfType("int64")).Once().Return(dynamoInternalErr)
+	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64"), mock.AnythingOfType("int64")).Once().Return(errors.New("Dynamo Glitch"))
+	db.On("Put", VALID_MUTEX_NAME, mock.AnythingOfType("int64"), mock.AnythingOfType("int64")).Once().Return(nil)
 
 	before := time.Now()
 	underTest.Lock()
@@ -95,7 +97,7 @@ func TestPruneExpired(t *testing.T) {
 	db := new(mocks.DBer)
 	underTest := NewMutex(VALID_MUTEX_NAME, VALID_MUTEX_TTL, db, VALID_MUTEX_RETRY_WAIT)
 
-	db.On("Get", VALID_MUTEX_NAME).Return(&models.Item{Name: VALID_MUTEX_NAME, Created: VALID_MUTEX_CREATED}, nil)
+	db.On("Get", VALID_MUTEX_NAME).Return(&models.Item{Name: VALID_MUTEX_NAME, Created: VALID_MUTEX_CREATED, TTL: VALID_MUTEX_TTL}, nil)
 	db.On("Delete", VALID_MUTEX_NAME).Return(nil)
 
 	underTest.PruneExpired()

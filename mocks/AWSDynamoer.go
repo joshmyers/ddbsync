@@ -1,8 +1,9 @@
 package mocks
 
-import "github.com/stretchr/testify/mock"
-
-import "github.com/aws/aws-sdk-go/service/dynamodb"
+import (
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/stretchr/testify/mock"
+)
 
 type AWSDynamoer struct {
 	mock.Mock
