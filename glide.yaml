@@ -1,4 +1,4 @@
-package: github.com/zencoder/ddbsync
+package: github.com/joshmyers/ddbsync
 import:
 - package: github.com/aws/aws-sdk-go
   version: v1.7.9

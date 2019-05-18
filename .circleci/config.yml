@@ -9,7 +9,7 @@ containerInfo:
       GLIDE_VERSION: 0.12.3
 jobs:
   build:
-    workdir: "/go/src/github.com/zencoder/ddbsync"
+    workdir: "/go/src/github.com/joshmyers/ddbsync"
     steps:
       - checkout
       - run:

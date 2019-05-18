@@ -8,7 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/zencoder/ddbsync/models"
+	"github.com/joshmyers/ddbsync/models"
 )
 
 type database struct {

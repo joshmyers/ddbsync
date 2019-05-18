@@ -10,8 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"github.com/zencoder/ddbsync/mocks"
-	"github.com/zencoder/ddbsync/models"
+	"github.com/joshmyers/ddbsync/mocks"
+	"github.com/joshmyers/ddbsync/models"
 )
 
 const (

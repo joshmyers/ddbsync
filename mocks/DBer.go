@@ -2,7 +2,7 @@ package mocks
 
 import "github.com/stretchr/testify/mock"
 
-import "github.com/zencoder/ddbsync/models"
+import "github.com/joshmyers/ddbsync/models"
 
 type DBer struct {
 	mock.Mock
