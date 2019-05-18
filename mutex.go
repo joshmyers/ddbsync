@@ -8,6 +8,7 @@
 package ddbsync
 
 import (
+	"errors"
 	"log"
 	"strings"
 	"sync"
@@ -36,6 +37,21 @@ func NewMutex(name string, ttl int64, db DBer, lockReattemptWait time.Duration) 
 		db:                db,
 		LockReattemptWait: lockReattemptWait,
 	}
+}
+
+var ErrLockAlreadyHeld = errors.New("lock already held")
+
+// AttemptLock will try to write the lock once
+func (m *Mutex) AttemptLock(retries int64) error {
+	m.PruneExpired()
+	err := m.db.Put(m.Name, time.Now().Unix())
+	if err == nil {
+		return nil
+	}
+	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == dynamodb.ErrCodeConditionalCheckFailedException {
+		return ErrLockAlreadyHeld
+	}
+	return err
 }
 
 // Lock will write an item in a DynamoDB table if the item does not exist.
