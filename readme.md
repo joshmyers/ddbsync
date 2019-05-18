@@ -1,8 +1,8 @@
 # ddbsync
 
 [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/joshmyers/ddbsync)
-[![Build Status](https://img.shields.io/travis/zencoder/ddbsync.svg)](https://travis-ci.org/zencoder/ddbsync)
-[![Coverage Status](https://coveralls.io/repos/zencoder/ddbsync/badge.svg?branch=master)](https://coveralls.io/r/zencoder/ddbsync?branch=master)
+[![Build Status](https://circleci.com/gh/joshmyers/ddbsync/tree/master.svg?style=svg)](https://circleci.com/gh/joshmyers/ddbsync/tree/master)
+[![Coverage Status](https://coveralls.io/repos/joshmyers/ddbsync/badge.svg?branch=master)](https://coveralls.io/r/joshmyers/ddbsync?branch=master)
 
 DynamoDB/sync
 
