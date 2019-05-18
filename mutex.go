@@ -44,7 +44,7 @@ var ErrLockAlreadyHeld = errors.New("lock already held")
 // AttemptLock will try to write the lock once
 func (m *Mutex) AttemptLock(retries int64) error {
 	m.PruneExpired()
-	err := m.db.Put(m.Name, time.Now().Unix())
+	err := m.db.Put(m.Name, time.Now().Unix(), m.TTL)
 	if err == nil {
 		return nil
 	}
@@ -60,7 +60,7 @@ func (m *Mutex) AttemptLock(retries int64) error {
 func (m *Mutex) Lock() {
 	for {
 		m.PruneExpired()
-		err := m.db.Put(m.Name, time.Now().Unix())
+		err := m.db.Put(m.Name, time.Now().Unix(), m.TTL)
 		if err == nil {
 			return
 		}
@@ -103,7 +103,7 @@ func (m *Mutex) PruneExpired() {
 		return
 	}
 	if item != nil {
-		if item.Created < (time.Now().Unix() - m.TTL) {
+		if item.Created < (time.Now().Unix() - item.TTL) {
 			m.Unlock()
 		}
 	}

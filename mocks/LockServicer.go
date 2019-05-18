@@ -1,9 +1,10 @@
 package mocks
 
-import "github.com/stretchr/testify/mock"
-
-import "sync"
-import "time"
+import (
+	"github.com/stretchr/testify/mock"
+	"sync"
+	"time"
+)
 
 type LockServicer struct {
 	mock.Mock

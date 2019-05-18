@@ -32,7 +32,7 @@ var _ DBer = (*database)(nil) // Forces compile time checking of the interface
 var _ AWSDynamoer = (*dynamodb.DynamoDB)(nil) // Forces compile time checking of the interface
 
 type DBer interface {
-	Put(string, int64) error
+	Put(string, int64, int64) error
 	Get(string) (*models.Item, error)
 	Delete(string) error
 }
@@ -43,13 +43,16 @@ type AWSDynamoer interface {
 	DeleteItem(*dynamodb.DeleteItemInput) (*dynamodb.DeleteItemOutput, error)
 }
 
-func (db *database) Put(name string, created int64) error {
+func (db *database) Put(name string, created int64, ttl int64) error {
 	i := map[string]*dynamodb.AttributeValue{
 		"Name": {
 			S: aws.String(name),
 		},
 		"Created": {
 			N: aws.String(strconv.FormatInt(created, 10)),
+		},
+		"TTL": {
+			N: aws.String(strconv.FormatInt(ttl, 10)),
 		},
 	}
 
@@ -84,7 +87,7 @@ func (db *database) Get(name string) (*models.Item, error) {
 		TableName:       aws.String(db.tableName),
 		ConsistentRead:  aws.Bool(true),
 		Select:          aws.String("SPECIFIC_ATTRIBUTES"),
-		AttributesToGet: []*string{aws.String("Name"), aws.String("Created")},
+		AttributesToGet: []*string{aws.String("Name"), aws.String("Created"), aws.String("TTL")},
 		KeyConditions:   kc,
 	}
 
@@ -110,6 +113,7 @@ func (db *database) Get(name string) (*models.Item, error) {
 
 	n := ""
 	c := int64(0)
+	t := int64(0)
 	for index, element := range qo.Items[0] {
 		if index == "Name" {
 			n = *element.S
@@ -117,13 +121,17 @@ func (db *database) Get(name string) (*models.Item, error) {
 		if index == "Created" {
 			c, _ = strconv.ParseInt(*element.N, 10, 0)
 		}
+		if index == "TTL" {
+			t, _ = strconv.ParseInt(*element.N, 10, 0)
+		}
 	}
-	if n == "" || c == 0 {
-		return nil, errors.New("The Name and Created keys were not found in the Dynamo result")
+	if n == "" || c == 0 || t == 0 {
+		return nil, errors.New("The Name, Created and TTL keys were not found in the Dynamo result")
 	}
 	i := &models.Item{
 		Name:    n,
 		Created: c,
+		TTL:     t,
 	}
 	return i, nil
 }
